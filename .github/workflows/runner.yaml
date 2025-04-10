@@ -1,0 +1,22 @@
+name: Self-Hosted Runner Test
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: self-hosted
+    steps:
+      - name: Print runner info
+        run: |
+          echo "Running on self-hosted runner"
+          echo "OS: $(uname -a)"
+          echo "Date: $(date)"
+          
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Node version
+        run: node -v || echo "Node is not installed"
