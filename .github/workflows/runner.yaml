@@ -1,4 +1,4 @@
-name: Self-Hosted Runner Full Test
+name: Self-Hosted Runner Full Test (Safe)
 
 on:
   push:
@@ -19,39 +19,30 @@ jobs:
 
       - name: Show system info
         run: |
-          echo "Running on $(uname -a)"
-          echo "Current directory: $(pwd)"
-          echo "Node version: $(node -v || echo 'Node not installed')"
-          echo "Python version: $(python3 --version || echo 'Python not installed')"
+          echo "✅ Self-hosted runner is working!"
+          echo "OS: $(uname -a)"
+          echo "User: $(whoami)"
+          echo "Directory: $(pwd)"
 
-      - name: Use a specific Node.js version
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install dependencies
+      - name: Show environment variables
         run: |
-          echo "Pretend we are installing dependencies..."
+          echo "Project environment: $PROJECT_ENV"
+          echo "Deploy region: $DEPLOY_REGION"
+
+      - name: Simulate dependency install
+        run: |
+          echo "Installing dependencies..."
           sleep 2
 
-      - name: Run fake build
+      - name: Fake build step
         run: |
-          echo "Building project in $PROJECT_ENV mode"
-          mkdir -p build && echo "dummy file" > build/output.txt
+          echo "Running build..."
+          mkdir -p build
+          echo "Build successful!" > build/output.txt
+          cat build/output.txt
 
-      - name: Cache node_modules (example)
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-output
-          path: build/output.txt
-
-      - name: Done!
-        run: echo "Workflow completed successfully on a self-hosted runner!"
+      - name: Final check
+        run: |
+          echo "Listing build directory:"
+          ls -l build
+          echo "✅ Build and runner check completed!"
