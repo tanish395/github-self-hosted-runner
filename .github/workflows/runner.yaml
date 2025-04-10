@@ -1,22 +1,57 @@
-name: Self-Hosted Runner Test
+name: Self-Hosted Runner Full Test
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  test:
+  test-self-hosted:
     runs-on: self-hosted
+
+    env:
+      PROJECT_ENV: development
+      DEPLOY_REGION: us-east
+
     steps:
-      - name: Print runner info
-        run: |
-          echo "Running on self-hosted runner"
-          echo "OS: $(uname -a)"
-          echo "Date: $(date)"
-          
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Node version
-        run: node -v || echo "Node is not installed"
+      - name: Show system info
+        run: |
+          echo "Running on $(uname -a)"
+          echo "Current directory: $(pwd)"
+          echo "Node version: $(node -v || echo 'Node not installed')"
+          echo "Python version: $(python3 --version || echo 'Python not installed')"
+
+      - name: Use a specific Node.js version
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          echo "Pretend we are installing dependencies..."
+          sleep 2
+
+      - name: Run fake build
+        run: |
+          echo "Building project in $PROJECT_ENV mode"
+          mkdir -p build && echo "dummy file" > build/output.txt
+
+      - name: Cache node_modules (example)
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-output
+          path: build/output.txt
+
+      - name: Done!
+        run: echo "Workflow completed successfully on a self-hosted runner!"
